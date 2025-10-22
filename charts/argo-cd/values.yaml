@@ -1,15 +1,11 @@
-# values.yaml for ArgoCD Helm chart
 server:
-  # Optional: allow HTTP internally
   extraArgs:
     - --insecure
 
-  # RBAC policies
   rbacConfig:
     policy.csv: |
       p, nidgetgod, *, *, *, allow
 
-  # OIDC SSO configuration
   oidc:
     config: |
       name: authentik
@@ -26,16 +22,13 @@ server:
         - groups
       logoutURL: https://authentik.test.tixcraft.com/application/o/argocd/end-session/
 
-  # External URL for ArgoCD UI
   url: https://argocd-new.test.ticketmaster.sg
 
-  # Service configuration (NodePort required for ALB instance target)
   service:
     type: NodePort
     nodePortHttp: 31080
     nodePortHttps: 31443
 
-  # Ingress configuration
   ingress:
     enabled: true
     hosts:
@@ -53,3 +46,14 @@ server:
       alb.ingress.kubernetes.io/subnets: subnet-0ea76de587b0bee3b,subnet-00831cfa6a9cf1bbe
       alb.ingress.kubernetes.io/tags: Name=Test K8s,Resource Group=test,Organization=tmsg
       external-dns.alpha.kubernetes.io/target: aa1d451f988d9418dbf7b3637b228204-1533970775.us-west-1.elb.amazonaws.com
+
+  route:
+    enabled: false
+
+  config:
+    resource.customizations: |
+      networking.k8s.io/Ingress:
+        health.lua: |
+          hs = {}
+          hs.status = "Healthy"
+          return hs
